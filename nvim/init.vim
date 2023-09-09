@@ -78,35 +78,52 @@ nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 
 " Harpoon
-nnoremap <leader>a <cmd>lua require().add_file()<cr>
+nnoremap <leader>a <cmd>lua require("harpoon.mark").add_file()<cr>
 nnoremap <leader><leader> <cmd>:lua require("harpoon.ui").toggle_quick_menu()<cr>
 
-" LspZero : Syntax highlight
-lua <<EOF
-	local lsp = require('lsp-zero').preset({})
+" Fichier
+nnoremap <C-p> :Explore %:h<CR>
 
-	lsp.on_attach(function(client, bufnr)
-	-- see :help lsp-zero-keybindings
-	-- to learn the available actions
-		lsp.default_keymaps({buffer = bufnr})
-	end)
 
-	lsp.setup()
+lua<<OEF
+local lsp = require('lsp-zero').preset({})
 
-	-- You need to setup `cmp` after lsp-zero
-	local cmp = require('cmp')
-	local cmp_action = require('lsp-zero').cmp_action()
+lsp.on_attach(function(client, bufnr)
+  -- see :help lsp-zero-keybindings
+  -- to learn the available actions
+  lsp.default_keymaps({buffer = bufnr})
+end)
 
-	cmp.setup({
-		mapping = {
-			-- `Enter` key to confirm completion
-			['<CR>'] = cmp.mapping.confirm({select = false}),
+lsp.setup()
 
-			-- Ctrl+Space to trigger completion menu
-			['<C-Space>'] = cmp.mapping.complete(),
+-- You need to setup `cmp` after lsp-zero
+local cmp = require('cmp')
+local cmp_action = require('lsp-zero').cmp_action()
 
-			-- Navigate between snippet placeholder
-			['<C-f>'] = cmp_action.luasnip_jump_forward(),
-			['<C-b>'] = cmp_action.luasnip_jump_backward(),
-		}
-	})
+cmp.setup({
+  mapping = {
+    -- `Enter` key to confirm completion
+    ['<CR>'] = cmp.mapping.confirm({select = false}),
+
+    -- Ctrl+Space to trigger completion menu
+    ['<C-Space>'] = cmp.mapping.complete(),
+
+    -- Navigate between snippet placeholder
+    ['<C-f>'] = cmp_action.luasnip_jump_forward(),
+    ['<C-b>'] = cmp_action.luasnip_jump_backward(),
+		['<Tab>'] = function(fallback)
+        if cmp.visible() then
+          cmp.select_next_item()
+        else
+          fallback()
+        end
+      end,
+		['<S-Tab>'] = function(fallback)
+        if cmp.visible() then
+          cmp.select_prev_item()
+        else
+          fallback()
+        end
+      end
+  }
+})
