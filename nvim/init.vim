@@ -33,6 +33,8 @@ Plug 'flazz/vim-colorschemes'
 Plug 'ap/vim-css-color'
 Plug 'airblade/vim-rooter'
 
+Plug 'f-person/git-blame.nvim'
+
 " Telescope
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.2' }
@@ -69,10 +71,7 @@ augroup END
 nnoremap <Esc> :noh<CR>
 noremap <C-i> <Nop>
 
-" Remapper Ctrl+O pour aller au fichier précédent dans l'historique
-nnoremap <C-o> :bprevious<CR>
-
-" Remapper Ctrl+I pour aller au fichier suivant dans l'historique
+nnoremap <C-u> :bprevious<CR>
 nnoremap <C-i> :bnext<CR>
 " Theme
 let g:gruvbox_invert_selection='0'
@@ -81,9 +80,12 @@ let g:gruvbox_contrast_dark = 'hard'
 colorscheme gruvbox
 let g:rooter_patterns = ['Makefile', '*.sln', 'build/env.sh', 'deploy.sh']
 
+" Git blame
+nnoremap <leader>b <cmd>GitBlameToggle<cr>
+
 " Telescope
 nnoremap <leader>ff <cmd>Telescope find_files<cr>
-nnoremap <leader>fg <cmd>lua require('telescope').extensions.live_grep_args.live_grep_args()<cr>
+nnoremap <leader>fg <cmd>lua require('telescope').extensions.live_grep_args.live_grep_args({ prompt_title = 'ripgrep with args', additional_args = '-tphp', })<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 
@@ -121,6 +123,28 @@ lsp.setup()
 -- You need to setup `cmp` after lsp-zero
 local cmp = require('cmp')
 local cmp_action = require('lsp-zero').cmp_action()
+local telescope = require("telescope")
+local lga_actions = require("telescope-live-grep-args.actions")
+
+telescope.setup {
+  extensions = {
+    live_grep_args = {
+        postfix = "",
+      auto_quoting = true, -- enable/disable auto-quoting
+      -- define mappings, e.g.
+      mappings = { -- extend mappings
+        i = {
+          --["<C-y>"] = lga_actions.quote_prompt(),
+          --["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
+        },
+      },
+      -- ... also accepts theme settings, for example:
+      -- theme = "dropdown", -- use dropdown theme
+      -- theme = { }, -- use own theme spec
+      -- layout_config = { mirror=true }, -- mirror preview pane
+    }
+  }
+}
 
 cmp.setup({
 mapping = {
